@@ -48,6 +48,10 @@ static void window_load(Window *window) {
 
   in_play_menu_layer = simple_menu_layer_create(bounds, window, in_play_menu_sections, 1, NULL);
   layer_add_child(window_layer, simple_menu_layer_get_layer(in_play_menu_layer));
+  
+#ifdef PBL_COLOR
+  menu_layer_set_highlight_colors(simple_menu_layer_get_menu_layer(in_play_menu_layer), GColorVividCerulean, GColorWhite);
+#endif
 
 }
 

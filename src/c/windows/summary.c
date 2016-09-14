@@ -8,18 +8,24 @@ static TextLayer *match_score;
 static TextLayer *match_score_details;
 static char match_score_str[6];
 static char match_score_details_str[30];
-
-// Largest expected inbox and outbox message sizes
-const uint32_t inbox_size = 64;
-const uint32_t outbox_size = 256;
+static char app_glance_message[64];
 
 static void window_load(Window *window) {  
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_frame(window_layer);
-
+  
   result = text_layer_create(GRect(10, 10, bounds.size.w - 20, 38));
-  text_layer_set_text(result, final_state->player_sets > final_state->opponent_sets ? "You win!" : "You lose");
-  text_layer_set_background_color(result, GColorBlack);
+  char * result_str = final_state->player_sets > final_state->opponent_sets ? "You win!" : "You lose";
+  text_layer_set_text(result, result_str);
+#ifdef PBL_COLOR
+  if (final_state->player_sets > final_state->opponent_sets) {
+    text_layer_set_background_color(result, GColorJaegerGreen);
+  } else {
+    text_layer_set_background_color(result, GColorOrange);
+  } 
+#else
+  text_layer_set_background_color(result, GColorOrange);
+#endif 
   text_layer_set_text_color(result, GColorWhite);
   text_layer_set_font(result, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
   text_layer_set_text_alignment(result, GTextAlignmentCenter);
@@ -55,24 +61,31 @@ static void window_load(Window *window) {
   text_layer_set_text_alignment(match_score_details, GTextAlignmentCenter);
   layer_add_child(window_layer, (Layer *) match_score_details);
   
-  /* Add pin to timeline */
-  app_message_open(inbox_size, outbox_size);
-  DictionaryIterator *out_iter;
-  AppMessageResult result = app_message_outbox_begin(&out_iter);
-  if(result == APP_MSG_OK) {
-    // Add data to message
-    dict_write_cstring(out_iter, AppKeyResult, final_state->player_sets > final_state->opponent_sets ? "You won": "You lost");
-    dict_write_cstring(out_iter, AppKeyScore, match_score_str);
-    dict_write_cstring(out_iter, AppKeyScoreDetails, match_score_details_str);
-  
-    // Send this message
-    result = app_message_outbox_send();
-    if(result != APP_MSG_OK) {
-      APP_LOG(APP_LOG_LEVEL_ERROR, "Error sending the outbox: %d", (int)result);
-    }
-  } else {
-    // The outbox cannot be used right now
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Error preparing the outbox: %d", (int)result);
+  /* Compute app glance message */
+  snprintf(app_glance_message, 64, "%s: %s (%s)", result_str, match_score_str, match_score_details_str);
+}
+
+static void prv_update_app_glance(AppGlanceReloadSession *session,
+                                       size_t limit, void *context) {
+  if (limit < 1) return;
+
+  // Cast the context object to a string
+  const char *message = context;
+
+  // Create the AppGlanceSlice
+  const AppGlanceSlice entry = (AppGlanceSlice) {
+    .layout = {
+      .icon = PUBLISHED_ID_MENU_ICON,
+      .subtitle_template_string = message
+    },
+    .expiration_time = APP_GLANCE_SLICE_NO_EXPIRATION
+  };
+
+  // Add the slice, and check the result
+  const AppGlanceResult result = app_glance_add_slice(session, entry);
+
+  if (result != APP_GLANCE_RESULT_SUCCESS) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "AppGlance Error: %d", result);
   }
 }
 
@@ -90,7 +103,11 @@ static void window_unload(Window *window) {
   text_layer_destroy(match_score);
   text_layer_destroy(match_score_details);
   window_destroy(window);
+  
   s_main_window = NULL;
+  
+  // Update app glance with last message before exiting
+  app_glance_reload(prv_update_app_glance, app_glance_message);
 }
 
 void summary_window_push(State *s) {

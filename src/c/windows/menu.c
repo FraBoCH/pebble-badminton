@@ -61,7 +61,7 @@ static void window_load(Window *window) {
 
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
-
+  
   settings = (Settings)
     { .num_sets = 3
     , .num_points = 21
@@ -101,6 +101,10 @@ static void window_load(Window *window) {
   
   main_menu_layer = simple_menu_layer_create(bounds, window, main_menu_sections, 2, NULL);
   layer_add_child(window_layer, simple_menu_layer_get_layer(main_menu_layer));
+
+#ifdef PBL_COLOR
+  menu_layer_set_highlight_colors(simple_menu_layer_get_menu_layer(main_menu_layer), GColorVividCerulean, GColorWhite);
+#endif
 }
 
 static void window_unload(Window *window) {
