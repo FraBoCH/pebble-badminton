@@ -17,7 +17,14 @@
                     "targetPlatforms": null,
                     "type": "png"
                 }
-            ]
+            ],
+            "publishedMedia": [
+            {
+              "name": "MENU_ICON",
+              "id": 1,
+              "glance": "menu_icon"
+            }
+          ]
         },
         "sdkVersion": "3",
         "targetPlatforms": [
