@@ -19,6 +19,7 @@ static char opponent_sets_str[2];
 
 static Layer *layout_layer;
 static Layer *server_marker_layer;
+static StatusBarLayer *status_layer;
 
 static int server;
 
@@ -94,8 +95,15 @@ static void click_config_provider(void *context) {
 
 static void layout_update_proc(Layer *layer, GContext *ctx) {
   GRect bounds = layer_get_frame(layer);
+  int available_height = bounds.size.h - STATUS_BAR_LAYER_HEIGHT;
+#ifdef PBL_COLOR
+  graphics_context_set_stroke_color(ctx, GColorVividCerulean);
+#else
   graphics_context_set_stroke_color(ctx, GColorBlack);
-  graphics_draw_line(ctx, GPoint(2, bounds.size.h / 2), GPoint(bounds.size.w - 2, bounds.size.h / 2));
+#endif
+  graphics_draw_line(ctx, 
+                       GPoint(2, STATUS_BAR_LAYER_HEIGHT + (available_height / 2)), 
+                       GPoint(bounds.size.w - 2,  STATUS_BAR_LAYER_HEIGHT + (available_height / 2)));
 }
 
 static void draw_layout() {
@@ -107,12 +115,18 @@ static void draw_layout() {
 
 static void server_marker_update_proc(Layer *layer, GContext *ctx) {
   GRect bounds = layer_get_frame(layer);
+  int available_height = bounds.size.h - STATUS_BAR_LAYER_HEIGHT;
+#ifdef PBL_COLOR
+  graphics_context_set_stroke_color(ctx, GColorVividCerulean);
+  graphics_context_set_fill_color(ctx, GColorVividCerulean);
+#else
   graphics_context_set_stroke_color(ctx, GColorBlack);
   graphics_context_set_fill_color(ctx, GColorBlack);
+#endif
   if (server == PLAYER) {
-    graphics_fill_circle(ctx, GPoint(bounds.size.w - 8, bounds.size.h * 0.75), 3);
+    graphics_fill_circle(ctx, GPoint(bounds.size.w - 8, STATUS_BAR_LAYER_HEIGHT + (available_height * 0.75)), 3);
   } else {
-    graphics_fill_circle(ctx, GPoint(bounds.size.w - 8, bounds.size.h / 4), 3);
+    graphics_fill_circle(ctx, GPoint(bounds.size.w - 8, STATUS_BAR_LAYER_HEIGHT + (available_height / 4)), 3);
   }
 }
 
@@ -136,30 +150,34 @@ static void window_load(Window *window) {
   // Make the text
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_frame(window_layer);
+  int available_height = bounds.size.h - STATUS_BAR_LAYER_HEIGHT;
 
   // Player sets
-  player_sets = text_layer_create(GRect(13, -19 + (bounds.size.h * 0.75), 20, 28));
+  player_sets = text_layer_create(GRect(33, STATUS_BAR_LAYER_HEIGHT - 19 + (available_height * 0.75), 20, 28));
   text_layer_set_text(player_sets, "0");
   text_layer_set_font(player_sets, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
   text_layer_set_text_alignment(player_sets, GTextAlignmentCenter);
   layer_add_child(window_layer, (Layer *) player_sets);
 
   // Opponent sets
-  opponent_sets = text_layer_create(GRect(13, -19 + (bounds.size.h / 4), 20, 28));
+  opponent_sets = text_layer_create(GRect(33,STATUS_BAR_LAYER_HEIGHT - 19 + (available_height / 4), 20, 28));
   text_layer_set_text(opponent_sets, "0");
   text_layer_set_font(opponent_sets, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
   text_layer_set_text_alignment(opponent_sets, GTextAlignmentCenter);
   layer_add_child(window_layer, (Layer *) opponent_sets);
   
   // Player score
-  player_score = text_layer_create(GRect(bounds.size.w / 2, 14 + bounds.size.h / 2, -10 + (bounds.size.w / 2), bounds.size.h / 2));
+  player_score = text_layer_create(GRect(bounds.size.w / 2, 
+                                          STATUS_BAR_LAYER_HEIGHT + 11 + (available_height / 2),
+                                         -10 + (bounds.size.w / 2), available_height / 2));
   text_layer_set_text(player_score, "0");
   text_layer_set_font(player_score, fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD));
   text_layer_set_text_alignment(player_score, GTextAlignmentCenter);
   layer_add_child(window_layer, (Layer *) player_score);
 
   // Opponent score
-  opponent_score = text_layer_create(GRect(bounds.size.w / 2, 14, -10 + (bounds.size.w / 2), bounds.size.h / 2));
+  opponent_score = text_layer_create(GRect(bounds.size.w / 2, STATUS_BAR_LAYER_HEIGHT + 11, 
+                                           -10 + (bounds.size.w / 2), available_height / 2));
   text_layer_set_text(opponent_score, "0");
   text_layer_set_font(opponent_score, fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD));
   text_layer_set_text_alignment(opponent_score, GTextAlignmentCenter);
@@ -168,15 +186,24 @@ static void window_load(Window *window) {
   draw_layout();
 
   // Sets label
-  sets_label = text_layer_create(GRect(8, -10 + (bounds.size.h / 2), 28, 20));
+  sets_label = text_layer_create(GRect(28, STATUS_BAR_LAYER_HEIGHT - 10 + (available_height / 2), 28, 20));
   text_layer_set_background_color(sets_label, GColorWhite);
+#ifdef PBL_COLOR
+  text_layer_set_text_color(sets_label, GColorVividCerulean);
+#endif
   text_layer_set_text(sets_label, "SETS");
   text_layer_set_font(sets_label, fonts_get_system_font(FONT_KEY_GOTHIC_14));
   text_layer_set_text_alignment(sets_label, GTextAlignmentCenter);
   layer_add_child(window_layer, (Layer *) sets_label);
 
+  // Status layer
+  status_layer = status_bar_layer_create();
+#ifdef PBL_COLOR
+  status_bar_layer_set_colors(status_layer, GColorVividCerulean, GColorWhite);
+#endif
+  layer_add_child(window_layer, (Layer *) status_layer);
+  
   render(&state);
-
 }
 
 static void window_unload(Window *window) {
@@ -195,6 +222,9 @@ static void window_unload(Window *window) {
 
   layer_destroy(server_marker_layer);
   server_marker_layer = NULL;
+  
+  status_bar_layer_destroy(status_layer);
+  status_layer = NULL;
 
   window_destroy(window);
   s_main_window = NULL;

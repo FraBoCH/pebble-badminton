@@ -1,0 +1,35 @@
+{
+    "author": "FraBo",
+    "dependencies": {},
+    "keywords": [],
+    "name": "badminton",
+    "pebble": {
+        "displayName": "Badminton score",
+        "enableMultiJS": true,
+        "messageKeys": [],
+        "projectType": "native",
+        "resources": {
+            "media": [
+                {
+                    "file": "images/menu-icon.png",
+                    "menuIcon": true,
+                    "name": "menu_icon",
+                    "targetPlatforms": null,
+                    "type": "png"
+                }
+            ]
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "aplite",
+            "basalt",
+            "chalk",
+            "diorite"
+        ],
+        "uuid": "7cd6aeae-176c-4c01-ba69-2e8b0093c84b",
+        "watchapp": {
+            "watchface": false
+        }
+    },
+    "version": "1.2.0"
+}
