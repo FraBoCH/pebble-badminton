@@ -9,6 +9,7 @@ This app is an adaptation of [Ben Gourley's Pebble Tennis] (https://github.com/b
 ## Screenshots
 
 ![Match screenshot](https://raw.githubusercontent.com/FraBoCH/pebble-badminton/master/graphics/match.png) ![Menu screenhot](https://raw.githubusercontent.com/FraBoCH/pebble-badminton/master/graphics/menu.png) ![Result screenshot](https://raw.githubusercontent.com/FraBoCH/pebble-badminton/master/graphics/summary.png)
+![Appglance screenshot](https://raw.githubusercontent.com/FraBoCH/pebble-badminton/master/graphics/app-launcher.png)
 
 ## Features
 
@@ -18,9 +19,8 @@ This app is an adaptation of [Ben Gourley's Pebble Tennis] (https://github.com/b
 - Recent scores are available from timeline (unless phone was disconnected at match end)
 
 ## Roadmap
-
-- Add some color
 - Integration with Pebble Health API ?
+- Integration with future heart reate monitor API?
 
 ## License
 
