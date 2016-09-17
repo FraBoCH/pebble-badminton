@@ -199,7 +199,7 @@ static void window_load(Window *window) {
   // Status layer
   status_layer = status_bar_layer_create();
 #ifdef PBL_COLOR
-  status_bar_layer_set_colors(status_layer, GColorVividCerulean, GColorWhite);
+  status_bar_layer_set_colors(status_layer, GColorVividCerulean, GColorBlack);
 #endif
   layer_add_child(window_layer, (Layer *) status_layer);
   

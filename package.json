@@ -17,20 +17,12 @@
                     "targetPlatforms": null,
                     "type": "png"
                 }
-            ],
-            "publishedMedia": [
-            {
-              "name": "MENU_ICON",
-              "id": 1,
-              "glance": "menu_icon"
-            }
-          ]
+            ]
         },
         "sdkVersion": "3",
         "targetPlatforms": [
             "aplite",
             "basalt",
-            "chalk",
             "diorite"
         ],
         "uuid": "7cd6aeae-176c-4c01-ba69-2e8b0093c84b",

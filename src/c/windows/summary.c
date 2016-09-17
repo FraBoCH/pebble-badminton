@@ -75,7 +75,6 @@ static void prv_update_app_glance(AppGlanceReloadSession *session,
   // Create the AppGlanceSlice
   const AppGlanceSlice entry = (AppGlanceSlice) {
     .layout = {
-      .icon = PUBLISHED_ID_MENU_ICON,
       .subtitle_template_string = message
     },
     .expiration_time = APP_GLANCE_SLICE_NO_EXPIRATION
